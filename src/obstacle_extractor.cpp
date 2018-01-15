@@ -85,7 +85,7 @@ bool ObstacleExtractor::updateParams(std_srvs::Empty::Request &req, std_srvs::Em
   nh_local_.param<bool>("use_split_and_merge", p_use_split_and_merge_, true);
   nh_local_.param<bool>("circles_from_visibles", p_circles_from_visibles_, true);
   nh_local_.param<bool>("discard_converted_segments", p_discard_converted_segments_, true);
-  nh_local_.param<bool>("transform_coordinates", p_transform_coordinates_, true);
+  nh_local_.param<bool>("transform_coordinates", p_transform_coordinates_, false);
 
   nh_local_.param<int>("min_group_points", p_min_group_points_, 5);
 
