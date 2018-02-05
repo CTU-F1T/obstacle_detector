@@ -7,6 +7,12 @@ find_package(catkin REQUIRED COMPONENTS roscpp roslaunch nodelet rviz std_msgs s
 find_package(Armadillo REQUIRED)
 find_package(Boost 1.54.0 REQUIRED system)
 
+#add dynamic reconfigure api
+find_package(catkin REQUIRED dynamic_reconfigure)
+generate_dynamic_reconfigure_options(
+  cfg/ObstacleExtractorConfig.cfg
+)
+
 add_message_files(FILES CircleObstacle.msg SegmentObstacle.msg Obstacles.msg)
 generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
@@ -28,6 +34,9 @@ add_dependencies(scans_merger ${catkin_EXPORTED_TARGETS})
 add_library(obstacle_extractor src/obstacle_extractor.cpp)
 target_link_libraries(obstacle_extractor ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES})
 add_dependencies(obstacle_extractor ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+add_dependencies(obstacle_extractor ${PROJECT_NAME}_gencfg)
+
 
 add_library(obstacle_tracker src/obstacle_tracker.cpp)
 target_link_libraries(obstacle_tracker ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES})
