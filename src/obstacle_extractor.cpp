@@ -41,15 +41,30 @@ using namespace std;
 using namespace obstacle_detector;
 
 void ObstacleExtractor::dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level) {
-  ROS_INFO("Reconfigure Request:");
+  ROS_INFO("Dynamic reconfigure request");
 
-  /*
-   %d %f %s %s %d", 
-            config.int_param, config.double_param, 
-            config.str_param.c_str(), 
-            config.bool_param?"True":"False", 
-            config.siz
-            */
+  updateParams(
+    config.active,
+    config.use_scan,
+    config.use_pcl,
+    config.use_split_and_merge,
+    config.circles_from_visible,
+    config.discart_converted_segments,
+    config.transform_coordinates,
+    config.min_group_points,
+    config.max_group_distance,
+    config.distance_proportion,
+    config.max_split_distance,
+    config.max_merge_separation,
+    config.max_merge_spread,
+    config.max_circle_radius,
+    config.radius_enlargement,
+    config.min_x_limit,
+    config.max_x_limit,
+    config.min_y_limit,
+    config.max_y_limit,
+    config.frame_id
+  );
 }
 
 ObstacleExtractor::ObstacleExtractor(ros::NodeHandle& nh, ros::NodeHandle& nh_local) : nh_(nh), nh_local_(nh_local) {
