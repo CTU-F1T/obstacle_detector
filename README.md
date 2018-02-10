@@ -16,6 +16,10 @@ sudo apt-get install libopenblas-dev
 sudo apt-get install liblapack-dev
 sudo apt-get install libarpack-dev
 
+#Build
+#Needed library for rviz vizualization objects - OGRE3d
+sudo apt-get install libogre-1.8-dev #do not install 1.9, does not work!
+
 ##Armadillo installation
 wget https://sourceforge.net/projects/arma/files/armadillo-8.300.3.tar.xz/download -O armadillo-8.300.3.tar.xz
 tar xf armadillo-8.300.3.tar.xz

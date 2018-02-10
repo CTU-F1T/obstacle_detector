@@ -3,12 +3,12 @@ project(obstacle_detector)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -fpermissive ${CMAKE_CXX_FLAGS} -Wfatal-errors\ ")
 
-find_package(catkin REQUIRED COMPONENTS roscpp roslaunch nodelet rviz std_msgs std_srvs geometry_msgs sensor_msgs tf laser_geometry message_generation)
+find_package(catkin REQUIRED COMPONENTS roscpp roslaunch nodelet rviz std_msgs std_srvs geometry_msgs sensor_msgs tf laser_geometry message_generation dynamic_reconfigure)
 find_package(Armadillo REQUIRED)
 find_package(Boost 1.54.0 REQUIRED system)
 
 #add dynamic reconfigure api
-find_package(catkin REQUIRED dynamic_reconfigure)
+#find_package(catkin REQUIRED )
 generate_dynamic_reconfigure_options(
   cfg/ObstacleExtractorConfig.cfg
 )
@@ -18,11 +18,11 @@ generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES scans_merger obstacle_extractor obstacle_tracker obstacle_publisher ${PROJECT_NAME}_nodelets ${PROJECT_NAME}_gui
+  LIBRARIES scans_merger obstacle_extractor obstacle_tracker obstacle_publisher ${PROJECT_NAME}_nodelets  # ${PROJECT_NAME}_gui
   CATKIN_DEPENDS roscpp nodelet rviz std_msgs std_srvs geometry_msgs sensor_msgs tf laser_geometry message_runtime
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${ARMADILLO_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} ${ARMADILLO_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 
 #
 # Build libs
@@ -92,7 +92,7 @@ add_library(${PROJECT_NAME}_gui
   src/displays/obstacles_display.cpp include/${PROJECT_NAME}/displays/obstacles_display.h
   src/displays/circle_visual.cpp include/${PROJECT_NAME}/displays/circle_visual.h
   src/displays/segment_visual.cpp include/${PROJECT_NAME}/displays/segment_visual.h
-  #
+  
   src/panels/scans_merger_panel.cpp include/${PROJECT_NAME}/panels/scans_merger_panel.h
   src/panels/obstacle_extractor_panel.cpp include/${PROJECT_NAME}/panels/obstacle_extractor_panel.h
   src/panels/obstacle_tracker_panel.cpp include/${PROJECT_NAME}/panels/obstacle_tracker_panel.h
@@ -103,7 +103,7 @@ add_dependencies(${PROJECT_NAME}_gui ${catkin_EXPORTED_TARGETS})
 #
 # Install libraries
 #
-install(TARGETS scans_merger obstacle_extractor obstacle_tracker obstacle_publisher ${PROJECT_NAME}_nodelets ${PROJECT_NAME}_gui
+install(TARGETS scans_merger obstacle_extractor obstacle_tracker obstacle_publisher ${PROJECT_NAME}_nodelets # ${PROJECT_NAME}_gui
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
