@@ -87,6 +87,8 @@ private:
   void mergeCircles();
   bool compareCircles(const Circle& c1, const Circle& c2, Circle& merged_circle);
 
+  void printParameters();
+
   dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig> server;
   dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig>::CallbackType f;
 
