@@ -59,9 +59,15 @@ public:
   ~ObstacleExtractor();
 
 private:
-  bool updateParams(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
   void dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level);
-
+  bool updateParams(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+  void updateParams(bool active, bool use_scan, bool use_pcl, bool use_split_and_merge, 
+                    bool circles_from_visibles, bool discard_converted_segments, bool transform_coordinates, 
+                    int min_group_points, double max_group_distance, double distance_proportion, 
+                    double max_split_distance, double max_merge_separation, double max_merge_spread, 
+                    double max_circle_radius, double radius_enlargement, double min_x_limit, 
+                    double max_x_limit, double min_y_limit, double max_y_limit,
+                    std::string frame_id);
   void scanCallback(const sensor_msgs::LaserScan::ConstPtr scan_msg);
   void pclCallback(const sensor_msgs::PointCloud::ConstPtr pcl_msg);
 
