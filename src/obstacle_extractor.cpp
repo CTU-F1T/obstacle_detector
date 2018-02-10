@@ -37,6 +37,9 @@
 #include "obstacle_detector/utilities/figure_fitting.h"
 #include "obstacle_detector/utilities/math_utilities.h"
 
+#include <dynamic_reconfigure/server.h>
+#include <obstacle_detector/ObstacleExtractorConfig.h>
+
 using namespace std;
 using namespace obstacle_detector;
 
@@ -44,6 +47,10 @@ ObstacleExtractor::ObstacleExtractor(ros::NodeHandle& nh, ros::NodeHandle& nh_lo
   p_active_ = false;
 
   params_srv_ = nh_local_.advertiseService("params", &ObstacleExtractor::updateParams, this);
+
+  dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig> server;
+  dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig>::CallbackType f;
+
   initialize();
 }
 

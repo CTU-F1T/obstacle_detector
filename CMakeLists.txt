@@ -10,7 +10,7 @@ find_package(Boost 1.54.0 REQUIRED system)
 #add dynamic reconfigure api
 #find_package(catkin REQUIRED )
 generate_dynamic_reconfigure_options(
-  cfg/ObstacleExtractorConfig.cfg
+  cfg/ObstacleExtractor.cfg
 )
 
 add_message_files(FILES CircleObstacle.msg SegmentObstacle.msg Obstacles.msg)
