@@ -87,6 +87,9 @@ private:
   void mergeCircles();
   bool compareCircles(const Circle& c1, const Circle& c2, Circle& merged_circle);
 
+  dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig> server;
+  dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig>::CallbackType f;
+
   ros::NodeHandle nh_;
   ros::NodeHandle nh_local_;
 

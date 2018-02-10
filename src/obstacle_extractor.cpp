@@ -72,9 +72,6 @@ ObstacleExtractor::ObstacleExtractor(ros::NodeHandle& nh, ros::NodeHandle& nh_lo
 
   params_srv_ = nh_local_.advertiseService("params", &ObstacleExtractor::updateParams, this);
 
-  dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig> server;
-  dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig>::CallbackType f;
-
   f = boost::bind(&ObstacleExtractor::dynamicReconfigureCallback, this, _1, _2);
   server.setCallback(f);
 
