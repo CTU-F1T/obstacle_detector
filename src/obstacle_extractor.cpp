@@ -37,11 +37,20 @@
 #include "obstacle_detector/utilities/figure_fitting.h"
 #include "obstacle_detector/utilities/math_utilities.h"
 
-#include <dynamic_reconfigure/server.h>
-#include <obstacle_detector/ObstacleExtractorConfig.h>
-
 using namespace std;
 using namespace obstacle_detector;
+
+void ObstacleExtractor::dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level) {
+  ROS_INFO("Reconfigure Request:");
+
+  /*
+   %d %f %s %s %d", 
+            config.int_param, config.double_param, 
+            config.str_param.c_str(), 
+            config.bool_param?"True":"False", 
+            config.siz
+            */
+}
 
 ObstacleExtractor::ObstacleExtractor(ros::NodeHandle& nh, ros::NodeHandle& nh_local) : nh_(nh), nh_local_(nh_local) {
   p_active_ = false;
@@ -50,6 +59,9 @@ ObstacleExtractor::ObstacleExtractor(ros::NodeHandle& nh, ros::NodeHandle& nh_lo
 
   dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig> server;
   dynamic_reconfigure::Server<obstacle_detector::ObstacleExtractorConfig>::CallbackType f;
+
+  f = boost::bind(&ObstacleExtractor::dynamicReconfigureCallback, this, _1, _2);
+  server.setCallback(f);
 
   initialize();
 }

@@ -41,6 +41,8 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/PointCloud.h>
 #include <obstacle_detector/Obstacles.h>
+#include <dynamic_reconfigure/server.h>
+#include <obstacle_detector/ObstacleExtractorConfig.h>
 
 #include "obstacle_detector/utilities/point.h"
 #include "obstacle_detector/utilities/segment.h"
@@ -58,6 +60,8 @@ public:
 
 private:
   bool updateParams(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+  void dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level);
+
   void scanCallback(const sensor_msgs::LaserScan::ConstPtr scan_msg);
   void pclCallback(const sensor_msgs::PointCloud::ConstPtr pcl_msg);
 
