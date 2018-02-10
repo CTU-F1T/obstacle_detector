@@ -8,9 +8,9 @@ find_package(Armadillo REQUIRED)
 find_package(Boost 1.54.0 REQUIRED system)
 
 #add dynamic reconfigure api
-#find_package(catkin REQUIRED )
 generate_dynamic_reconfigure_options(
   cfg/ObstacleExtractor.cfg
+  cfg/ObstacleTracker.cfg
 )
 
 add_message_files(FILES CircleObstacle.msg SegmentObstacle.msg Obstacles.msg)
