@@ -41,6 +41,8 @@
 #include <armadillo>
 #include <std_srvs/Empty.h>
 #include <obstacle_detector/Obstacles.h>
+#include <dynamic_reconfigure/server.h>
+#include <obstacle_detector/ObstacleTrackerConfig.h>
 
 #include "obstacle_detector/utilities/tracked_obstacle.h"
 #include "obstacle_detector/utilities/math_utilities.h"
@@ -54,6 +56,7 @@ public:
   ~ObstacleTracker();
 
 private:
+  void dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level);
   bool updateParams(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
   void timerCallback(const ros::TimerEvent&);
   void obstaclesCallback(const obstacle_detector::Obstacles::ConstPtr new_obstacles);
@@ -80,6 +83,9 @@ private:
 
   ros::NodeHandle nh_;
   ros::NodeHandle nh_local_;
+
+  dynamic_reconfigure::Server<obstacle_detector::ObstacleTrackerConfig> server;
+  dynamic_reconfigure::Server<obstacle_detector::ObstacleTrackerConfig>::CallbackType f;
 
   ros::Subscriber obstacles_sub_;
   ros::Publisher obstacles_pub_;

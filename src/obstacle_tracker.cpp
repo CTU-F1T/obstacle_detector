@@ -45,6 +45,9 @@ ObstacleTracker::ObstacleTracker(ros::NodeHandle& nh, ros::NodeHandle& nh_local)
   timer_ = nh_.createTimer(ros::Duration(1.0), &ObstacleTracker::timerCallback, this, false, false);
   params_srv_ = nh_local_.advertiseService("params", &ObstacleTracker::updateParams, this);
 
+  f = boost::bind(&ObstacleTracker::dynamicReconfigureCallback, this, _1, _2);
+  server.setCallback(f);
+
   initialize();
 }
 
@@ -61,6 +64,12 @@ ObstacleTracker::~ObstacleTracker() {
   nh_local_.deleteParam("measurement_variance");
 
   nh_local_.deleteParam("frame_id");
+}
+
+void ObstacleTracker::dynamicReconfigureCallback(obstacle_detector::ObstacleTracerConfig &config, uint32_t level) {
+  ROS_INFO("Dynamic parameters reconfiguration request");
+
+  //updateParams(...)
 }
 
 bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
