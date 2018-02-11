@@ -10,7 +10,7 @@ find_package(Boost 1.54.0 REQUIRED system)
 #add dynamic reconfigure api
 generate_dynamic_reconfigure_options(
   cfg/ObstacleExtractor.cfg
-  cfg/ObstacleTracker.cfg
+  #cfg/ObstacleTracker.cfg
 )
 
 add_message_files(FILES CircleObstacle.msg SegmentObstacle.msg Obstacles.msg)
@@ -18,11 +18,11 @@ generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES scans_merger obstacle_extractor obstacle_tracker obstacle_publisher ${PROJECT_NAME}_nodelets  # ${PROJECT_NAME}_gui
+  LIBRARIES scans_merger obstacle_extractor obstacle_tracker obstacle_publisher ${PROJECT_NAME}_nodelets  ${PROJECT_NAME}_gui
   CATKIN_DEPENDS roscpp nodelet rviz std_msgs std_srvs geometry_msgs sensor_msgs tf laser_geometry message_runtime
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${ARMADILLO_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
+include_directories(include ${catkin_INCLUDE_DIRS} ${ARMADILLO_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake})
 
 #
 # Build libs
@@ -33,14 +33,11 @@ add_dependencies(scans_merger ${catkin_EXPORTED_TARGETS})
 
 add_library(obstacle_extractor src/obstacle_extractor.cpp)
 target_link_libraries(obstacle_extractor ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES})
-add_dependencies(obstacle_extractor ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
-
-add_dependencies(obstacle_extractor ${PROJECT_NAME}_gencfg)
-
+add_dependencies(obstacle_extractor ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
 add_library(obstacle_tracker src/obstacle_tracker.cpp)
 target_link_libraries(obstacle_tracker ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES})
-add_dependencies(obstacle_tracker ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(obstacle_tracker ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
 add_library(obstacle_publisher src/obstacle_publisher.cpp)
 target_link_libraries(obstacle_publisher ${catkin_LIBRARIES})

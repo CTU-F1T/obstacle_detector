@@ -56,7 +56,7 @@ public:
   ~ObstacleTracker();
 
 private:
-  void dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level);
+  void dynamicReconfigureCallback(obstacle_detector::ObstacleTrackerConfig &config, uint32_t level);
   bool updateParams(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
   void timerCallback(const ros::TimerEvent&);
   void obstaclesCallback(const obstacle_detector::Obstacles::ConstPtr new_obstacles);
