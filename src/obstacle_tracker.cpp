@@ -67,7 +67,7 @@ ObstacleTracker::~ObstacleTracker() {
 }
 
 void ObstacleTracker::dynamicReconfigureCallback(obstacle_detector::ObstacleTracerConfig &config, uint32_t level) {
-  ROS_INFO("Dynamic parameters reconfiguration request");
+  ROS_INFO("PARAMETERS UPDATE REQUEST FROM DYNAMIC RECONFIGURATION");
 
   updateParams(
     config.active,
@@ -84,6 +84,8 @@ void ObstacleTracker::dynamicReconfigureCallback(obstacle_detector::ObstacleTrac
 }
 
 bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+  ROS_INFO("PARAMETERS UPDATE REQUEST FROM LOCAL SERVER");
+
   bool active, copy_segments;
   double loop_rate, tracting_duration, min_correspondence_cost, std_correspondence_dev, process_variance, process_rate_variance, measurement_variance;
   string frame_id;
