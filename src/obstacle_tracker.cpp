@@ -147,6 +147,8 @@ bool ObstaclesTracker::updateParams(bool active,
   p_measurement_variance_ = measurement_variance;
   p_frame_id_ = frame_id;
 
+  printParameters();
+
   obstacles_.header.frame_id = p_frame_id_;
 
   TrackedObstacle::setSamplingTime(p_sampling_time_);
@@ -177,7 +179,31 @@ bool ObstaclesTracker::updateParams(bool active,
       timer_.stop();
     }
   }
+}
 
+void ObstacleTracker::printParameters(){
+  ROS_INFO("Parametes \n\n"
+    "active: %d \n"
+    "copy_segments: %d \n\n"
+    "loop_rate: %f \n"
+    "tracting_duration: %f \n"
+    "min_correspondence_cost: %f \n"
+    "std_correspondence_dev: %f \n"
+    "process_variance: %f \n"
+    "process_rate_variance: %f \n"
+    "measurement_variance: %f \n\ns"
+    "frame_id: %f \n",
+    active,
+    copy_segments,
+    loop_rate,
+    tracting_duration,
+    min_correspondence_cost,
+    std_correspondence_dev,
+    process_variance,
+    process_rate_variance,
+    measurement_variance,
+    frame_id
+  );
 }
 
 void ObstacleTracker::timerCallback(const ros::TimerEvent&) {
