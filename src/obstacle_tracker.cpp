@@ -124,6 +124,68 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
   return true;
 }
 
+bool ObstaclesTracker::updateParams(bool active,
+                                    bool copy_segments,
+                                    double loop_rate,
+                                    double tracting_duration,
+                                    double min_correspondence_cost,
+                                    double std_correspondence_dev,
+                                    double process_variance,
+                                    double process_rate_variance,
+                                    double measurement_variance,
+                                    string frame_id){
+  ROS_INFO("UPDATING PARAMETERS");
+  bool prev_active = p_active_;
+
+
+  p_active_ = active;
+  p_copy_segments_ = copy_segments;
+  p_loop_rate_ = loop_rate;
+
+  p_sampling_time_ = 1.0 / p_loop_rate_;
+  p_sensor_rate_ = 10.0;    // 10 Hz for Hokuyo
+
+  p_tracting_duration_ = tracking_duration;
+  p_min_correspondence_cost_ = min_correspondence_cost;
+  p_std_correspondence_dev_ = std_correspondence_dev;
+  p_process_variance_ = process_variance;
+  p_process_rate_variance_ = process_rate_variance;
+  p_measurement_variance_ = measurement_variance;
+  p_frame_id_ = frame_id;
+
+  obstacles_.header.frame_id = p_frame_id_;
+
+  TrackedObstacle::setSamplingTime(p_sampling_time_);
+  TrackedObstacle::setCounterSize(static_cast<int>(p_loop_rate_ * p_tracking_duration_));
+  TrackedObstacle::setCovariances(p_process_variance_, p_process_rate_variance_, p_measurement_variance_);
+
+  timer_.setPeriod(ros::Duration(p_sampling_time_), false);
+
+  if (p_active_ != prev_active) {
+    if (p_active_) {
+      obstacles_sub_ = nh_.subscribe("raw_obstacles", 10, &ObstacleTracker::obstaclesCallback, this);
+      obstacles_pub_ = nh_.advertise<obstacle_detector::Obstacles>("tracked_obstacles", 10);
+      timer_.start();
+    }
+    else {
+      // Send empty message
+      obstacle_detector::ObstaclesPtr obstacles_msg(new obstacle_detector::Obstacles);
+      obstacles_msg->header.frame_id = obstacles_.header.frame_id;
+      obstacles_msg->header.stamp = ros::Time::now();
+      obstacles_pub_.publish(obstacles_msg);
+
+      obstacles_sub_.shutdown();
+      obstacles_pub_.shutdown();
+
+      tracked_obstacles_.clear();
+      untracked_obstacles_.clear();
+
+      timer_.stop();
+    }
+  }
+
+}
+
 void ObstacleTracker::timerCallback(const ros::TimerEvent&) {
   updateObstacles();
   publishObstacles();
