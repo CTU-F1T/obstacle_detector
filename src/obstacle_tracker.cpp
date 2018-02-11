@@ -73,53 +73,36 @@ void ObstacleTracker::dynamicReconfigureCallback(obstacle_detector::ObstacleTrac
 }
 
 bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-  bool prev_active = p_active_;
+  bool active, copy_segments;
+  double loop_rate, tracting_duration, min_correspondence_cost, std_correspondence_dev, process_variance, process_rate_variance, measurement_variance;
+  string frame_id;
 
-  nh_local_.param<bool>("active", p_active_, true);
-  nh_local_.param<bool>("copy_segments", p_copy_segments_, true);
+  nh_local_.param<bool>("active", active, true);
+  nh_local_.param<bool>("copy_segments", copy_segments, true);
 
-  nh_local_.param<double>("loop_rate", p_loop_rate_, 100.0);
-  p_sampling_time_ = 1.0 / p_loop_rate_;
-  p_sensor_rate_ = 10.0;    // 10 Hz for Hokuyo
+  nh_local_.param<double>("loorate", loorate, 100.0);
 
-  nh_local_.param<double>("tracking_duration", p_tracking_duration_, 2.0);
-  nh_local_.param<double>("min_correspondence_cost", p_min_correspondence_cost_, 0.3);
-  nh_local_.param<double>("std_correspondence_dev", p_std_correspondence_dev_, 0.15);
-  nh_local_.param<double>("process_variance", p_process_variance_, 0.01);
-  nh_local_.param<double>("process_rate_variance", p_process_rate_variance_, 0.1);
-  nh_local_.param<double>("measurement_variance", p_measurement_variance_, 1.0);
+  nh_local_.param<double>("tracking_duration", tracking_duration, 2.0);
+  nh_local_.param<double>("min_correspondence_cost", min_correspondence_cost, 0.3);
+  nh_local_.param<double>("std_correspondence_dev", std_correspondence_dev, 0.15);
+  nh_local_.param<double>("process_variance", process_variance, 0.01);
+  nh_local_.param<double>("process_rate_variance", process_rate_variance, 0.1);
+  nh_local_.param<double>("measurement_variance", measurement_variance, 1.0);
 
-  nh_local_.param<string>("frame_id", p_frame_id_, string("map"));
-  obstacles_.header.frame_id = p_frame_id_;
+  nh_local_.param<string>("frame_id", frame_id, string("map"));
 
-  TrackedObstacle::setSamplingTime(p_sampling_time_);
-  TrackedObstacle::setCounterSize(static_cast<int>(p_loop_rate_ * p_tracking_duration_));
-  TrackedObstacle::setCovariances(p_process_variance_, p_process_rate_variance_, p_measurement_variance_);
-
-  timer_.setPeriod(ros::Duration(p_sampling_time_), false);
-
-  if (p_active_ != prev_active) {
-    if (p_active_) {
-      obstacles_sub_ = nh_.subscribe("raw_obstacles", 10, &ObstacleTracker::obstaclesCallback, this);
-      obstacles_pub_ = nh_.advertise<obstacle_detector::Obstacles>("tracked_obstacles", 10);
-      timer_.start();
-    }
-    else {
-      // Send empty message
-      obstacle_detector::ObstaclesPtr obstacles_msg(new obstacle_detector::Obstacles);
-      obstacles_msg->header.frame_id = obstacles_.header.frame_id;
-      obstacles_msg->header.stamp = ros::Time::now();
-      obstacles_pub_.publish(obstacles_msg);
-
-      obstacles_sub_.shutdown();
-      obstacles_pub_.shutdown();
-
-      tracked_obstacles_.clear();
-      untracked_obstacles_.clear();
-
-      timer_.stop();
-    }
-  }
+  updateParams(
+    active,
+    copy_segments,
+    loop_rate,
+    tracting_duration,
+    min_correspondence_cost,
+    std_correspondence_dev,
+    process_variance,
+    process_rate_variance,
+    measurement_variance,
+    frame_id
+  );
 
   return true;
 }
