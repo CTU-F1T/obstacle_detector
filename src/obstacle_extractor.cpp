@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Software License Agreement (BSD License)
  *
  * Copyright (c) 2017, Poznan University of Technology
@@ -40,33 +40,6 @@
 using namespace std;
 using namespace obstacle_detector;
 
-void ObstacleExtractor::dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level) {
-  ROS_INFO("Dynamic reconfigure request");
-
-  updateParams(
-    config.active,
-    config.use_scan,
-    config.use_pcl,
-    config.use_split_and_merge,
-    config.circles_from_visible,
-    config.discart_converted_segments,
-    config.transform_coordinates,
-    config.min_group_points,
-    config.max_group_distance,
-    config.distance_proportion,
-    config.max_split_distance,
-    config.max_merge_separation,
-    config.max_merge_spread,
-    config.max_circle_radius,
-    config.radius_enlargement,
-    config.min_x_limit,
-    config.max_x_limit,
-    config.min_y_limit,
-    config.max_y_limit,
-    config.frame_id
-  );
-}
-
 ObstacleExtractor::ObstacleExtractor(ros::NodeHandle& nh, ros::NodeHandle& nh_local) : nh_(nh), nh_local_(nh_local) {
   p_active_ = false;
 
@@ -106,7 +79,36 @@ ObstacleExtractor::~ObstacleExtractor() {
   nh_local_.deleteParam("frame_id");
 }
 
+void ObstacleExtractor::dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level) {
+  ROS_INFO("Dynamic parameters reconfiguration request");
+
+  updateParams(
+    config.active,
+    config.use_scan,
+    config.use_pcl,
+    config.use_split_and_merge,
+    config.circles_from_visible,
+    config.discart_converted_segments,
+    config.transform_coordinates,
+    config.min_group_points,
+    config.max_group_distance,
+    config.distance_proportion,
+    config.max_split_distance,
+    config.max_merge_separation,
+    config.max_merge_spread,
+    config.max_circle_radius,
+    config.radius_enlargement,
+    config.min_x_limit,
+    config.max_x_limit,
+    config.min_y_limit,
+    config.max_y_limit,
+    config.frame_id
+  );
+}
+
 bool ObstacleExtractor::updateParams(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+  ROS_INFO("Updating parameters from inner node");
+
   bool active, use_scan, use_pcl, use_split_and_merge, circles_from_visibles, discard_converted_segments, transform_coordinates;
   int min_group_points;
   double max_group_distance, distance_proportion, max_split_distance, max_merge_separation, max_merge_spread, max_circle_radius, radius_enlargement, min_x_limit, max_x_limit, min_y_limit, max_y_limit;
@@ -156,21 +158,21 @@ void ObstacleExtractor::updateParams(bool active, bool use_scan, bool use_pcl, b
                                      double max_circle_radius, double radius_enlargement, double min_x_limit, 
                                      double max_x_limit, double min_y_limit, double max_y_limit,
                                      string frame_id){
-  ROS_INFO("Parameters updated");
+  ROS_INFO("Updating parameters");
   
   bool prev_active = p_active_;
 
   p_active_ = active;
   p_use_scan_ = use_scan;
   p_use_pcl_ = use_pcl;
- 
+
   p_use_split_and_merge_ = use_split_and_merge;
   p_circles_from_visibles_ = circles_from_visibles;
   p_discard_converted_segments_ = discard_converted_segments;
   p_transform_coordinates_ = transform_coordinates;
- 
+
   p_min_group_points_ = min_group_points;
- 
+
   p_max_group_distance_ = max_group_distance;
   p_distance_proportion_ = distance_proportion;
   p_max_split_distance_ = max_split_distance;
@@ -178,20 +180,84 @@ void ObstacleExtractor::updateParams(bool active, bool use_scan, bool use_pcl, b
   p_max_merge_spread_ = max_merge_spread;
   p_max_circle_radius_ = max_circle_radius;
   p_radius_enlargement_ = radius_enlargement;
- 
+
   p_min_x_limit_ = min_x_limit;
   p_max_x_limit_ = max_x_limit;
   p_min_y_limit_ = min_y_limit;
   p_max_y_limit_ = max_y_limit;
- 
+
   p_frame_id_ = frame_id;
- 
+
   if (p_active_ != prev_active) {
     if (p_active_) {
+      if (p_use_scan_)
+        scan_sub_ = nh_.subscribe("scan", 10, &ObstacleExtractor::scanCallback, this);
+      else if (p_use_pcl_)
+        pcl_sub_ = nh_.subscribe("pcl", 10, &ObstacleExtractor::pclCallback, this);
+
+      obstacles_pub_ = nh_.advertise<obstacle_detector::Obstacles>("raw_obstacles", 10);
+    }
+    else {
+      // Send empty message
+      obstacle_detector::ObstaclesPtr obstacles_msg(new obstacle_detector::Obstacles);
+      obstacles_msg->header.frame_id = p_frame_id_;
+      obstacles_msg->header.stamp = ros::Time::now();
+      obstacles_pub_.publish(obstacles_msg);
+
+      scan_sub_.shutdown();
+      pcl_sub_.shutdown();
       obstacles_pub_.shutdown();
     }
   }
+
+  printParameters();
 }
+
+void ObstacleExtractor::printParameters(){
+  ROS_INFO("Parameters : \n\n"
+    "active: %d \n\n"
+    "use_scan: %d \n"
+    "use_pcl: %d \n\n"
+    "use_split_and_merge: %d \n"
+    "circles_from_visible: %d \n"
+    "discard_converted_segments: %d \n"
+    "transform_coordinates: %d \n\n"
+    "min_group_points: %d \n\n"
+    "max_group_distance: %f \n"
+    "distance_proportion: %f \n"
+    "max_split_distance: %f \n"
+    "max_merge_separation = %f \n"
+    "max_merge_spread: %f \n"
+    "max_circle_radius: %f \n"
+    "radius_enlargmenet: %f \n\n"
+    "min_x_limit: %f \n"
+    "max_x_limit: %f \n"
+    "min_y_limit: %f \n"
+    "max_y_limit: %f \n\n"
+    "frame_id: %s\n",
+    p_active_,
+    p_use_scan_,
+    p_use_pcl_,
+    p_use_split_and_merge_,
+    p_circles_from_visibles_,
+    p_discard_converted_segments_,
+    p_transform_coordinates_,
+    p_min_group_points_,
+    p_max_group_distance_,
+    p_distance_proportion_,
+    p_max_split_distance_,
+    p_max_merge_separation_,
+    p_max_merge_spread_,
+    p_max_circle_radius_,
+    p_radius_enlargement_,
+    p_min_x_limit_,
+    p_max_x_limit_,
+    p_min_y_limit_,
+    p_max_y_limit_,
+    p_frame_id_.c_str()
+  );
+}
+                                  
 
 void ObstacleExtractor::scanCallback(const sensor_msgs::LaserScan::ConstPtr scan_msg) {
   base_frame_id_ = scan_msg->header.frame_id;
@@ -203,7 +269,7 @@ void ObstacleExtractor::scanCallback(const sensor_msgs::LaserScan::ConstPtr scan
     if (r >= scan_msg->range_min && r <= scan_msg->range_max)
       input_points_.push_back(Point::fromPoolarCoords(r, phi));
 
-    phi = scan_msg->angle_increment;
+    phi += scan_msg->angle_increment;
   }
 
   processPoints();
@@ -243,19 +309,19 @@ void ObstacleExtractor::groupPoints() {
   point_set.num_points = 1;
   point_set.is_visible = true;
 
-  for (PointIterator point = input_points_.begin(); point != input_points_.end(); point) {
+  for (PointIterator point = input_points_.begin()++; point != input_points_.end(); ++point) {
     double range = (*point).length();
     double distance = (*point - *point_set.end).length();
 
-    if (distance < p_max_group_distance_  range * p_distance_proportion_) {
+    if (distance < p_max_group_distance_ + range * p_distance_proportion_) {
       point_set.end = point;
-      point_set.num_points;
+      point_set.num_points++;
     }
     else {
       double prev_range = (*point_set.end).length();
 
       // Heron's equation
-      double p = (range  prev_range  distance) / 2.0;
+      double p = (range + prev_range + distance) / 2.0;
       double S = sqrt(p * (p - range) * (p - prev_range) * (p - distance));
       double sin_d = 2.0 * S / (range * prev_range); // Sine of angle between beams
 
@@ -294,13 +360,13 @@ void ObstacleExtractor::detectSegments(const PointSet& point_set) {
   int point_index = 0; // Natural index of current point in the set
 
   // Seek the point of division
-  for (PointIterator point = point_set.begin; point != point_set.end; point) {
-    point_index;
+  for (PointIterator point = point_set.begin; point != point_set.end; ++point) {
+    ++point_index;
 
     if ((distance = segment.distanceTo(*point)) >= max_distance) {
       double r = (*point).length();
 
-      if (distance > p_max_split_distance_  r * p_distance_proportion_) {
+      if (distance > p_max_split_distance_ + r * p_distance_proportion_) {
         max_distance = distance;
         set_divider = point;
         split_index = point_index;
@@ -318,7 +384,7 @@ void ObstacleExtractor::detectSegments(const PointSet& point_set) {
     subset1.num_points = split_index;
     subset1.is_visible = point_set.is_visible;
 
-    subset2.begin = set_divider;
+    subset2.begin = ++set_divider;
     subset2.end = point_set.end;
     subset2.num_points = point_set.num_points - split_index;
     subset2.is_visible = point_set.is_visible;
@@ -334,8 +400,8 @@ void ObstacleExtractor::detectSegments(const PointSet& point_set) {
 }
 
 void ObstacleExtractor::mergeSegments() {
-  for (auto i = segments_.begin(); i != segments_.end(); i) {
-    for (auto j = i; j != segments_.end(); j) {
+  for (auto i = segments_.begin(); i != segments_.end(); ++i) {
+    for (auto j = i; j != segments_.end(); ++j) {
       Segment merged_segment;
 
       if (compareSegments(*i, *j, merged_segment)) {
@@ -388,7 +454,7 @@ bool ObstacleExtractor::checkSegmentsCollinearity(const Segment& segment, const 
 }
 
 void ObstacleExtractor::detectCircles() {
-  for (auto segment = segments_.begin(); segment != segments_.end(); segment) {
+  for (auto segment = segments_.begin(); segment != segments_.end(); ++segment) {
     if (p_circles_from_visibles_) {
       bool segment_is_visible = true;
       for (const PointSet& ps : segment->point_sets) {
@@ -402,7 +468,7 @@ void ObstacleExtractor::detectCircles() {
     }
 
     Circle circle(*segment);
-    circle.radius = p_radius_enlargement_;
+    circle.radius += p_radius_enlargement_;
 
     if (circle.radius < p_max_circle_radius_) {
       circles_.push_back(circle);
@@ -416,8 +482,8 @@ void ObstacleExtractor::detectCircles() {
 }
 
 void ObstacleExtractor::mergeCircles() {
-  for (auto i = circles_.begin(); i != circles_.end(); i) {
-    for (auto j = i; j != circles_.end(); j) {
+  for (auto i = circles_.begin(); i != circles_.end(); ++i) {
+    for (auto j = i; j != circles_.end(); ++j) {
       Circle merged_circle;
 
       if (compareCircles(*i, *j, merged_circle)) {
@@ -448,12 +514,12 @@ bool ObstacleExtractor::compareCircles(const Circle& c1, const Circle& c2, Circl
   }
 
   // If circles intersect and are 'small' - merge
-  if (c1.radius  c2.radius >= (c2.center - c1.center).length()) {
-    Point center = c1.center  (c2.center - c1.center) * c1.radius / (c1.radius  c2.radius);
-    double radius = (c1.center - center).length()  c1.radius;
+  if (c1.radius + c2.radius >= (c2.center - c1.center).length()) {
+    Point center = c1.center + (c2.center - c1.center) * c1.radius / (c1.radius + c2.radius);
+    double radius = (c1.center - center).length() + c1.radius;
 
     Circle circle(center, radius);
-    circle.radius = max(c1.radius, c2.radius);
+    circle.radius += max(c1.radius, c2.radius);
 
     if (circle.radius < p_max_circle_radius_) {
       circle.point_sets.insert(circle.point_sets.end(), c1.point_sets.begin(), c1.point_sets.end());

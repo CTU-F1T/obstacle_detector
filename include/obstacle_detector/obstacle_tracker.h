@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Software License Agreement (BSD License)
  *
  * Copyright (c) 2017, Poznan University of Technology
@@ -58,6 +58,16 @@ public:
 private:
   void dynamicReconfigureCallback(obstacle_detector::ObstacleTrackerConfig &config, uint32_t level);
   bool updateParams(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+  void updateParams(bool active,
+                    bool copy_segments,
+                    double loop_rate,
+                    double tracting_duration,
+                    double min_correspondence_cost,
+                    double std_correspondence_dev,
+                    double process_variance,
+                    double process_rate_variance,
+                    double measurement_variance,
+                    std::string frame_id);
   void timerCallback(const ros::TimerEvent&);
   void obstaclesCallback(const obstacle_detector::Obstacles::ConstPtr new_obstacles);
 
