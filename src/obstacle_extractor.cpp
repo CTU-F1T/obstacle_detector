@@ -547,6 +547,10 @@ void ObstacleExtractor::publishObstacles() {
       ROS_INFO_STREAM(ex.what());
       return;
     }
+    // Note: I am not aware of a situation where it is needed. But for some reason it was added here.
+    catch (const std::exception &ex) {
+      ROS_INFO_STREAM(ex.what());
+    }
 
     tf::Vector3 origin = transform.getOrigin();
     double theta = tf::getYaw(transform.getRotation());
