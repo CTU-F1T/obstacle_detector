@@ -52,7 +52,7 @@ ObstacleTracker::ObstacleTracker(ros::NodeHandle& nh, ros::NodeHandle& nh_local)
 }
 
 ObstacleTracker::~ObstacleTracker() {
-  nh_local_.deleteParam("active");
+  /*nh_local_.deleteParam("active");
   nh_local_.deleteParam("copy_segments");
 
   nh_local_.deleteParam("loop_rate");
@@ -63,7 +63,7 @@ ObstacleTracker::~ObstacleTracker() {
   nh_local_.deleteParam("process_rate_variance");
   nh_local_.deleteParam("measurement_variance");
 
-  nh_local_.deleteParam("frame_id");
+  nh_local_.deleteParam("frame_id");*/
 }
 
 void ObstacleTracker::dynamicReconfigureCallback(obstacle_detector::ObstacleTrackerConfig &config, uint32_t level) {

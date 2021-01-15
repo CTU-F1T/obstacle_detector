@@ -52,7 +52,7 @@ ObstacleExtractor::ObstacleExtractor(ros::NodeHandle& nh, ros::NodeHandle& nh_lo
 }
 
 ObstacleExtractor::~ObstacleExtractor() {
-  nh_local_.deleteParam("active");
+  /*nh_local_.deleteParam("active");
   nh_local_.deleteParam("use_scan");
   nh_local_.deleteParam("use_pcl");
 
@@ -76,7 +76,7 @@ ObstacleExtractor::~ObstacleExtractor() {
   nh_local_.deleteParam("min_y_limit");
   nh_local_.deleteParam("max_y_limit");
 
-  nh_local_.deleteParam("frame_id");
+  nh_local_.deleteParam("frame_id");*/
 }
 
 void ObstacleExtractor::dynamicReconfigureCallback(obstacle_detector::ObstacleExtractorConfig &config, uint32_t level) {
