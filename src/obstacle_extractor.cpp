@@ -98,10 +98,10 @@ void ObstacleExtractor::dynamicReconfigureCallback(obstacle_detector::ObstacleEx
     config.max_merge_spread,
     config.max_circle_radius,
     config.radius_enlargement,
-    config.min_x_limit,
+    /*config.min_x_limit,
     config.max_x_limit,
     config.min_y_limit,
-    config.max_y_limit,
+    config.max_y_limit,*/
     config.frame_id
   );
 }
@@ -111,7 +111,7 @@ bool ObstacleExtractor::updateParams(std_srvs::Empty::Request &req, std_srvs::Em
 
   bool active, use_scan, use_pcl, use_split_and_merge, circles_from_visibles, discard_converted_segments, transform_coordinates;
   int min_group_points;
-  double max_group_distance, distance_proportion, max_split_distance, max_merge_separation, max_merge_spread, max_circle_radius, radius_enlargement, min_x_limit, max_x_limit, min_y_limit, max_y_limit;
+  double max_group_distance, distance_proportion, max_split_distance, max_merge_separation, max_merge_spread, max_circle_radius, radius_enlargement;//, min_x_limit, max_x_limit, min_y_limit, max_y_limit;
   string frame_id;
 
   nh_local_.param<bool>("active", active, true);
@@ -133,10 +133,10 @@ bool ObstacleExtractor::updateParams(std_srvs::Empty::Request &req, std_srvs::Em
   nh_local_.param<double>("max_circle_radius",max_circle_radius, 0.6);
   nh_local_.param<double>("radius_enlargement",radius_enlargement, 0.25);
 
-  nh_local_.param<double>("min_x_limit",min_x_limit, -10.0);
+  /*nh_local_.param<double>("min_x_limit",min_x_limit, -10.0);
   nh_local_.param<double>("max_x_limit",max_x_limit,  10.0);
   nh_local_.param<double>("min_y_limit",min_y_limit, -10.0);
-  nh_local_.param<double>("max_y_limit",max_y_limit,  10.0);
+  nh_local_.param<double>("max_y_limit",max_y_limit,  10.0);*/
 
   nh_local_.param<string>("frame_id",frame_id, "map");
 
@@ -144,8 +144,8 @@ bool ObstacleExtractor::updateParams(std_srvs::Empty::Request &req, std_srvs::Em
               circles_from_visibles, discard_converted_segments, transform_coordinates, 
               min_group_points, max_group_distance, distance_proportion, 
               max_split_distance, max_merge_separation, max_merge_spread, 
-              max_circle_radius, radius_enlargement, min_x_limit, 
-              max_x_limit, min_y_limit, max_y_limit,
+              max_circle_radius, radius_enlargement, /*min_x_limit,
+              max_x_limit, min_y_limit, max_y_limit,*/
               frame_id);
 
   return true;
@@ -155,8 +155,8 @@ void ObstacleExtractor::updateParams(bool active, bool use_scan, bool use_pcl, b
                                      bool circles_from_visibles, bool discard_converted_segments, bool transform_coordinates, 
                                      int min_group_points, double max_group_distance, double distance_proportion, 
                                      double max_split_distance, double max_merge_separation, double max_merge_spread, 
-                                     double max_circle_radius, double radius_enlargement, double min_x_limit, 
-                                     double max_x_limit, double min_y_limit, double max_y_limit,
+                                     double max_circle_radius, double radius_enlargement, /*double min_x_limit,
+                                     double max_x_limit, double min_y_limit, double max_y_limit,*/
                                      string frame_id){
   ROS_INFO("Updating parameters");
   
@@ -181,10 +181,10 @@ void ObstacleExtractor::updateParams(bool active, bool use_scan, bool use_pcl, b
   p_max_circle_radius_ = max_circle_radius;
   p_radius_enlargement_ = radius_enlargement;
 
-  p_min_x_limit_ = min_x_limit;
+  /*p_min_x_limit_ = min_x_limit;
   p_max_x_limit_ = max_x_limit;
   p_min_y_limit_ = min_y_limit;
-  p_max_y_limit_ = max_y_limit;
+  p_max_y_limit_ = max_y_limit;*/
 
   p_frame_id_ = frame_id;
 
@@ -230,10 +230,10 @@ void ObstacleExtractor::printParameters(){
     "max_merge_spread: %f \n"
     "max_circle_radius: %f \n"
     "radius_enlargmenet: %f \n\n"
-    "min_x_limit: %f \n"
+    /*"min_x_limit: %f \n"
     "max_x_limit: %f \n"
     "min_y_limit: %f \n"
-    "max_y_limit: %f \n\n"
+    "max_y_limit: %f \n\n"*/
     "frame_id: %s\n",
     p_active_,
     p_use_scan_,
@@ -250,10 +250,10 @@ void ObstacleExtractor::printParameters(){
     p_max_merge_spread_,
     p_max_circle_radius_,
     p_radius_enlargement_,
-    p_min_x_limit_,
+    /*p_min_x_limit_,
     p_max_x_limit_,
     p_min_y_limit_,
-    p_max_y_limit_,
+    p_max_y_limit_,*/
     p_frame_id_.c_str()
   );
 }
@@ -581,8 +581,8 @@ void ObstacleExtractor::publishObstacles() {
   }
 
   for (const Circle& c : circles_) {
-    if (c.center.x > p_min_x_limit_ && c.center.x < p_max_x_limit_ &&
-        c.center.y > p_min_y_limit_ && c.center.y < p_max_y_limit_) {
+    /*if (c.center.x > p_min_x_limit_ && c.center.x < p_max_x_limit_ &&
+        c.center.y > p_min_y_limit_ && c.center.y < p_max_y_limit_) {*/
         CircleObstacle circle;
 
         circle.center.x = c.center.x;
@@ -593,7 +593,7 @@ void ObstacleExtractor::publishObstacles() {
         circle.true_radius = c.radius - p_radius_enlargement_;
 
         obstacles_msg->circles.push_back(circle);
-    }
+    //}
   }
 
   obstacles_pub_.publish(obstacles_msg);
