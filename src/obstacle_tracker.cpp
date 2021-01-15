@@ -73,7 +73,7 @@ void ObstacleTracker::dynamicReconfigureCallback(obstacle_detector::ObstacleTrac
     config.active,
     config.copy_segments,
     config.loop_rate,
-    config.tracting_duration,
+    config.tracking_duration,
     config.min_correspondence_cost,
     config.std_correspondence_dev,
     config.process_variance,

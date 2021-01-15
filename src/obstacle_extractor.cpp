@@ -88,7 +88,7 @@ void ObstacleExtractor::dynamicReconfigureCallback(obstacle_detector::ObstacleEx
     config.use_pcl,
     config.use_split_and_merge,
     config.circles_from_visible,
-    config.discart_converted_segments,
+    config.discard_converted_segments,
     config.transform_coordinates,
     config.min_group_points,
     config.max_group_distance,
