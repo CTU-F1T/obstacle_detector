@@ -552,16 +552,13 @@ void ObstacleExtractor::publishObstacles() {
       ROS_INFO_STREAM(ex.what());
     }
 
-    tf::Vector3 origin = transform.getOrigin();
-    double theta = tf::getYaw(transform.getRotation());
-
     for (Segment& s : segments_) {
-      s.first_point = transformPoint(s.first_point, origin.x(), origin.y(), theta);
-      s.last_point = transformPoint(s.last_point, origin.x(), origin.y(), theta);
+      s.first_point = transformPoint(s.first_point, transform);
+      s.last_point = transformPoint(s.last_point, transform);
     }
 
     for (Circle& c : circles_)
-      c.center = transformPoint(c.center, origin.x(), origin.y(), theta);
+      c.center = transformPoint(c.center, transform);
 
     obstacles_msg->header.frame_id = p_frame_id_;
   }
